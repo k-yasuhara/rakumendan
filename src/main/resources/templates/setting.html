@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<script type="module" th:src="@{js/input-dates.js}"></script>
+	<style>
+		input {
+			width: 80vw;
+		}
+	</style>
+</head>
+
+<body>
+	<p>[[${msg}]]</p>
+	<h1>個人面談 日程設定</h1>
+
+	<h2>面談日 設定</h2>
+	<form action="" method="post" th:object="${meet}">
+		<input-dates id="inputdates"></input-dates><br />
+		<input type="text" id="chk" th:field="*{parentMeetingDate}" style="width: 350px" readonly /><br />
+		<h2>面談時間 設定</h2>
+		<p>
+			開始時間
+			<input type="time" name="startTime" style="width: auto" th:field="*{startTime}" />
+		</p>
+		<p>
+			終了時間
+			<input type="time" name="endTime" style="width: auto" th:field="*{endTime}" />
+		</p>
+		<p>
+			面談時間
+			<input type="text" name="timePerMeeting" style="width: 50px" th:field="*{timePerMeeting}" />分
+		</p>
+		<input type="submit" value="確定" style="width: auto" />
+	</form>
+
+	<script type="module">
+		inputdates.onchange = () => {
+			//   console.log(inputdates.value);
+			chk.value = inputdates.value;
+		};
+	</script>
+</body>
+
+</html>
