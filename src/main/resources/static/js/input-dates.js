@@ -252,7 +252,7 @@ class InputDates extends HTMLElement {
       .filter((d) => d);
   }
   get value() {
-    return this.checked.map((d) => d.toString()).join(",");
+    return this.checked.map((d) =>`${d.toString()}(${["日", "月", "火", "水", "木", "金", "土"][d.getWeek()]})`).join(",");
   }
   set value(days) {
     this.checked = this.makeDaysArray(days);

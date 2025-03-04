@@ -9,39 +9,66 @@
 		input {
 			width: 80vw;
 		}
+
+		.error {
+			color: red;
+		}
 	</style>
 </head>
 
 <body>
-	<p>[[${msg}]]</p>
-	<h1>個人面談 日程設定</h1>
+	<h1>個人面談 スケジュール設定画面</h1>
+	<p class="error">[[${errorMsg}]]</p>
 
 	<h2>面談日 設定</h2>
 	<form action="" method="post" th:object="${meet}">
 		<input-dates id="inputdates"></input-dates><br />
 		<input type="text" id="chk" th:field="*{parentMeetingDate}" style="width: 350px" readonly /><br />
+		<script type="module">
+			inputdates.onchange = () => {
+				//   console.log(inputdates.value);
+				chk.value = inputdates.value;
+			};
+		</script>
 		<h2>面談時間 設定</h2>
 		<p>
-			開始時間
+			開始時間：
 			<input type="time" name="startTime" style="width: auto" th:field="*{startTime}" />
 		</p>
 		<p>
-			終了時間
+			終了時間：
 			<input type="time" name="endTime" style="width: auto" th:field="*{endTime}" />
 		</p>
 		<p>
-			面談時間
-			<input type="text" name="timePerMeeting" style="width: 50px" th:field="*{timePerMeeting}" />分
+			面談時間 (0～60分)：
+			<input type="number" name="timePerMeeting" style="width: 50px" th:field="*{timePerMeeting}" placeholder="0"
+				min="0" max="60" step="5" />分
 		</p>
-		<input type="submit" value="確定" style="width: auto" />
-	</form>
 
-	<script type="module">
-		inputdates.onchange = () => {
-			//   console.log(inputdates.value);
-			chk.value = inputdates.value;
-		};
-	</script>
+		<input type="submit" value="設定" style="width: auto" />
+	</form>
+	<br>
+	
+	<!--面談スケジュール-->
+	<div th:if="${meetDate}">
+		<table>
+			<thead>
+				<tr>
+					<th>時間/日にち</th>
+					<th th:each="date: ${meetDate}">[[${date}]]</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="schedule , status: ${schedule}" style="height: 50px;">
+					<th>[[${status.count}]]. [[${schedule}]]</th>
+					<td th:each="date: ${meetDate}">
+						<button>面談×</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- end of 面談スケジュール-->
 </body>
 
 </html>
