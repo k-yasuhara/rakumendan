@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
@@ -23,13 +24,13 @@ public class AuthController {
 	private final HttpSession session;
 
 	@GetMapping("/login")
-	public String getAdminLogin(Model m) {
+	public String getLogin(Model m) {
 		m.addAttribute("admin", new Admin());
 		return "login";
 	}
 
 	@PostMapping("/login")
-	public String postAdminLogin(
+	public String postLogin(
 			@Valid @ModelAttribute Admin inputAdmin,
 			Errors errors,
 			Model m) {
@@ -48,18 +49,27 @@ public class AuthController {
 		Admin admin = service.selectByIdAndPass(inputAdmin.getLoginId());
 		session.setAttribute("loginId", admin.getLoginId());
 		session.setAttribute("loginName", admin.getName());
-
+		
+		//先生用画面に遷移
 		if (admin.getStatus().equals("admin")) {
 			return "redirect:/admin";
 		}
-		return "redirect:/";
+		//保護者用画面に遷移
+		return "redirect:/student";
 	}
 
 	@GetMapping("/logout")
-	public String getMethodName(RedirectAttributes ra) {
+	public String getLogout(RedirectAttributes ra) {
 		session.invalidate();
 		ra.addFlashAttribute("errorMsg", "ログアウトしました");
 		return "redirect:/login";
 	}
+	
+	@GetMapping("")
+	public String getRedirectLogin(Model m) {
+		m.addAttribute("admin", new Admin());
+		return "redirect:/login";
+	}
+	
 
 }

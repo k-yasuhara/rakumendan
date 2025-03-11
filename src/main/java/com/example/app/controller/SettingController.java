@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.app.domain.Meeting;
@@ -16,11 +17,12 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/admin")
 public class SettingController {
 
 	private final MeetingSettingService service;
 
-	@GetMapping
+	@GetMapping("/setting")
 	public String getSetting(Model m) {
 		Meeting meet = new Meeting();
 		//デフォルト値設定
@@ -30,7 +32,7 @@ public class SettingController {
 		return "admin/setting";
 	}
 
-	@PostMapping
+	@PostMapping("/setting")
 	public String postSetting(
 			@ModelAttribute Meeting meet,
 			@RequestParam(value = "unavailableDates", required = false) String unavailableDates,
