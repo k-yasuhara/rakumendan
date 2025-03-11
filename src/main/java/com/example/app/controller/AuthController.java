@@ -52,7 +52,7 @@ public class AuthController {
 		
 		//先生用画面に遷移
 		if (admin.getStatus().equals("admin")) {
-			return "redirect:/admin";
+			return "redirect:/admin/mypage";
 		}
 		//保護者用画面に遷移
 		return "redirect:/student";
