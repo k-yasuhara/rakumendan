@@ -60,13 +60,13 @@ public class SettingController {
 		//バリデーション
 		if (countMeet == null) {
 			m.addAttribute("errorMsg", "面談日を設定してください");
-			return "setting";
+			return "teacher/setting";
 		} else if (!isValidStartAndEndTime) {
 			m.addAttribute("errorMsg", "開始時間・終了時間の入力が不正です");
-			return "setting";
+			return "teacher/setting";
 		} else if (meet.getTimePerMeeting().isEmpty() || meet.getTimePerMeeting().equals("0")) {
 			m.addAttribute("errorMsg", "面談時間の入力が不正です");
-			return "setting";
+			return "teacher/setting";
 		}
 
 		//tableタグ用に変数格納
