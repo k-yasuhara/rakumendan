@@ -9,7 +9,7 @@
 	
 	<p th:if="${errorMsg}" th:text="${errorMsg}"></p>
 	
-	<form action="" method="post" th:object="${admin}">
+	<form action="" method="post" th:object="${user}">
 		<p>ログインID：
 			<input type="text" th:field="*{loginId}" required>
 		</p>

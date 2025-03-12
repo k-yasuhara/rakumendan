@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @Controller
-@RequestMapping("/admin")
-public class AdminMypageController {
+@RequestMapping("/teacher")
+public class TeacherMypageController {
 	
 	@GetMapping("/mypage")
 	public String getAdminMypage() {
-		return "admin/mypage";
+		return "teacher/mypage";
 	}
 	
 	

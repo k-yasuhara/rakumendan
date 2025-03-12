@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/teacher")
 public class SettingController {
 
 	private final MeetingSettingService service;
@@ -29,7 +29,7 @@ public class SettingController {
 		meet.setStartTime("09:00");
 		meet.setEndTime("17:00");
 		m.addAttribute("meet", meet);
-		return "admin/setting";
+		return "teacher/setting";
 	}
 
 	@PostMapping("/setting")
@@ -73,7 +73,7 @@ public class SettingController {
 		m.addAttribute("meetDate", meetDate);
 		m.addAttribute("schedule", schedule);
 
-		return "admin/setting";
+		return "teacher/setting";
 	}
 
 }

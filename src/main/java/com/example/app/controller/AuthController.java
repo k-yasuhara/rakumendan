@@ -8,54 +8,60 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.app.domain.Admin;
-import com.example.app.service.AdminService;
+import com.example.app.domain.User;
+import com.example.app.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
 
-	private final AdminService service;
+	private final UserService service;
 	private final HttpSession session;
 
 	@GetMapping("/login")
 	public String getLogin(Model m) {
-		m.addAttribute("admin", new Admin());
+		m.addAttribute("user", new User());
 		return "login";
 	}
 
 	@PostMapping("/login")
 	public String postLogin(
-			@Valid @ModelAttribute Admin inputAdmin,
+			@Valid @ModelAttribute User inputUser,
 			Errors errors,
 			Model m) {
 
+		//バリデーション
 		if (errors.hasErrors()) {
-			m.addAttribute("admin", inputAdmin);
+			m.addAttribute("user", inputUser);
 			return "login";
 		}
 
-		if (!service.loginByIdAndPass(inputAdmin.getLoginId(), inputAdmin.getPass())) {
+		//不正なログイン
+		if (!service.loginByIdAndPass(inputUser.getLoginId(), inputUser.getPass())) {
 			m.addAttribute("errorMsg", "不正なログインです");
-			m.addAttribute("admin", inputAdmin);
+			m.addAttribute("user", inputUser);
 			return "login";
 		}
 
-		Admin admin = service.selectByIdAndPass(inputAdmin.getLoginId());
-		session.setAttribute("loginId", admin.getLoginId());
-		session.setAttribute("loginName", admin.getName());
-		
-		//先生用画面に遷移
-		if (admin.getStatus().equals("admin")) {
-			return "redirect:/admin/mypage";
+		//セッションに格納
+		User user = service.selectByIdAndPass(inputUser.getLoginId());
+		session.setAttribute("loginId", user.getLoginId());
+		session.setAttribute("loginName", user.getName());
+
+		//userTypeによって画面遷移を変更
+		//userType == 2(先生)
+		//userType == 3(生徒)
+		if (user.getUserType() == 2) {
+			return "redirect:/teacher/mypage";
+		}else if(user.getUserType() == 3) {
+			return "redirect:/student";			
 		}
-		//保護者用画面に遷移
-		return "redirect:/student";
+		//管理者画面
+		return "redirect:/admin";
 	}
 
 	@GetMapping("/logout")
@@ -64,12 +70,11 @@ public class AuthController {
 		ra.addFlashAttribute("errorMsg", "ログアウトしました");
 		return "redirect:/login";
 	}
-	
+
 	@GetMapping("")
 	public String getRedirectLogin(Model m) {
-		m.addAttribute("admin", new Admin());
+		m.addAttribute("user", new User());
 		return "redirect:/login";
 	}
-	
 
 }
