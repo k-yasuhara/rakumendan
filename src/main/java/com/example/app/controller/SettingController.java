@@ -1,5 +1,7 @@
 package com.example.app.controller;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -10,9 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.app.domain.Meeting;
+import com.example.app.domain.InterviewSchedule;
+import com.example.app.dto.Meeting;
+import com.example.app.mapper.InterviewScheduleMapper;
 import com.example.app.service.MeetingSettingService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -21,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class SettingController {
 
 	private final MeetingSettingService service;
+	private final HttpSession session;
+	private final InterviewScheduleMapper mapper;
 
 	@GetMapping("/setting")
 	public String getSetting(Model m) {
@@ -38,7 +45,21 @@ public class SettingController {
 			@RequestParam(value = "unavailableDates", required = false) String unavailableDates,
 			Model m) {
 
-		m.addAttribute("meet", meet);
+		//面談スケジュールをDBに格納
+		List<String> meetDate = service.getMeetingDate(meet); //面談日をリストに格納
+		List<String> schedule = service.getMeetingSchedule(meet);//面談時間枠をリストに格納
+
+		for (String date : meetDate) {
+			InterviewSchedule interview = new InterviewSchedule();
+			for (String meetTime : schedule) {
+				interview.setTeacherId((String) session.getAttribute("loginId"));
+				interview.setDate(LocalDate.parse(date));
+				interview.setStartTime(LocalTime.parse(meetTime.split("～")[0]));
+				interview.setEndTime(LocalTime.parse(meetTime.split("～")[1]));
+				interview.setDurationMinutes(Integer.parseInt(meet.getTimePerMeeting()));
+				mapper.insert(interview);
+			}
+		}
 
 		if (unavailableDates != null && !unavailableDates.isEmpty()) {
 			String[] dates = unavailableDates.split(",");
@@ -47,22 +68,12 @@ public class SettingController {
 				// ここで、unavailableDatesを利用した処理を行います
 				// 例えば、データベースに保存する、あるいはリストに追加するなど
 				System.out.println("面談不可日: " + date);
-				
+
 				//リダイレクトする
 			}
 		}
 
-		List<String> meetDate = service.getMeetingDate(meet); //面談日をリストに格納
-		Integer countMeet = service.countMeetingDate(meet);//面談日数をカウント
-		boolean isValidStartAndEndTime = service.validateStartAndEndTime(meet);//開始・終了時間の精査
-		List<String> schedule = service.getMeetingSchedule(meet);
-
-
-		//tableタグ用に変数格納
-		m.addAttribute("meetDate", meetDate);
-		m.addAttribute("schedule", schedule);
-
-		return "teacher/setting2";
+		return "teacher/mypage";
 	}
 
 }

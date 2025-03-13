@@ -68,6 +68,7 @@
 		<!-- 面談不可日程を送信するための隠しフィールド -->
 		<input type="hidden" id="unavailableDates" name="unavailableDates" />
 	</form>
+	<a href="/teacher/mypage">マイページに戻る</a>
 
 	<a href="/logout">ログアウト</a>
 
@@ -135,7 +136,7 @@
 
 				const nextTime = `${padZero(hour)}:${padZero(minute)}`;
 
-				schedule.push(`${currentTime} ~ ${nextTime}`);
+				schedule.push(`${currentTime}～${nextTime}`);
 				currentTime = nextTime;
 			}
 

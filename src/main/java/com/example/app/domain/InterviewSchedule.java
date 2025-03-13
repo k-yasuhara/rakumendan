@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class InterviewSchedule {
 	private Integer id;
-	private Integer teacherId;
+	private String teacherId;
 	private LocalDate date;
 	private LocalTime startTime;
 	private LocalTime endTime;

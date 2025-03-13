@@ -2,12 +2,11 @@ package com.example.app.service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.app.domain.Meeting;
+import com.example.app.dto.Meeting;
 
 @Service
 public class MeetingSettingServiceImpl implements MeetingSettingService {
@@ -15,8 +14,18 @@ public class MeetingSettingServiceImpl implements MeetingSettingService {
 	@Override
 	public List<String> getMeetingDate(Meeting meet) {
 		String str = meet.getParentMeetingDate();
-		List<String> meetDate = Arrays.asList(str.split(","));
-		return meetDate;
+		// 文字列をカンマで分割
+        String[] dates = str.split(",");
+        
+        // 日付部分だけを格納するリスト
+        List<String> list = new ArrayList<>();
+        
+        // 各要素から曜日部分を削除して、日付だけを取得
+        for (String date : dates) {
+            String formattedDate = date.split("[(]")[0];  // (月)部分を除去
+            list.add(formattedDate);
+        }
+		return list;
 	}
 
 	@Override
@@ -61,7 +70,7 @@ public class MeetingSettingServiceImpl implements MeetingSettingService {
 				++hour;
 			}
 			LocalTime nextTime =  LocalTime.of(padZero(hour), padZero(minute));
-			schdule.add(currentTime +" ～ " + nextTime);
+			schdule.add(currentTime + "～" + nextTime);
 			currentTime = nextTime;
 		}
 
