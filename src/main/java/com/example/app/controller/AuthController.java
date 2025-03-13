@@ -51,16 +51,17 @@ public class AuthController {
 		User user = service.selectByIdAndPass(inputUser.getLoginId());
 		session.setAttribute("loginId", user.getLoginId());
 		session.setAttribute("loginName", user.getName());
-
+		session.setAttribute("loginNum", user.getId());
+		
 		//userTypeによって画面遷移を変更
 		//userType == 2(先生)
 		//userType == 3(生徒)
 		if (user.getUserType() == 2) {
 			return "redirect:/teacher/mypage";
 		}else if(user.getUserType() == 3) {
-			return "redirect:/student";			
+			return "redirect:/student/" + user.getId() + "/mypage";			
 		}
-		//管理者画面
+		//管理者画面 userTtype == 1
 		return "redirect:/admin";
 	}
 

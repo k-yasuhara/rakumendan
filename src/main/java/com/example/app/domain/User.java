@@ -11,6 +11,6 @@ public class User {
 	private String loginId;
 	private String pass;
 	private String status;
-	private Integer teacherId;
+	private String teacherId;
 	private Integer userType;
 }
