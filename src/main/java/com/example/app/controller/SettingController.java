@@ -29,7 +29,7 @@ public class SettingController {
 		meet.setStartTime("09:00");
 		meet.setEndTime("17:00");
 		m.addAttribute("meet", meet);
-		return "teacher/setting";
+		return "teacher/setting2";
 	}
 
 	@PostMapping("/setting")
@@ -57,23 +57,12 @@ public class SettingController {
 		boolean isValidStartAndEndTime = service.validateStartAndEndTime(meet);//開始・終了時間の精査
 		List<String> schedule = service.getMeetingSchedule(meet);
 
-		//バリデーション
-		if (countMeet == null) {
-			m.addAttribute("errorMsg", "面談日を設定してください");
-			return "teacher/setting";
-		} else if (!isValidStartAndEndTime) {
-			m.addAttribute("errorMsg", "開始時間・終了時間の入力が不正です");
-			return "teacher/setting";
-		} else if (meet.getTimePerMeeting().isEmpty() || meet.getTimePerMeeting().equals("0")) {
-			m.addAttribute("errorMsg", "面談時間の入力が不正です");
-			return "teacher/setting";
-		}
 
 		//tableタグ用に変数格納
 		m.addAttribute("meetDate", meetDate);
 		m.addAttribute("schedule", schedule);
 
-		return "teacher/setting";
+		return "teacher/setting2";
 	}
 
 }
