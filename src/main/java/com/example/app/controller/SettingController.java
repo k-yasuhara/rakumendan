@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.app.domain.InterviewSchedule;
 import com.example.app.dto.Meeting;
-import com.example.app.mapper.InterviewScheduleMapper;
+import com.example.app.service.InterviewSchedulesService;
 import com.example.app.service.MeetingSettingService;
 
 import jakarta.servlet.http.HttpSession;
@@ -25,12 +25,26 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/teacher")
 public class SettingController {
 
-	private final MeetingSettingService service;
+	private final MeetingSettingService meetingService;
 	private final HttpSession session;
-	private final InterviewScheduleMapper mapper;
+	private final InterviewSchedulesService interviewService;
 
 	@GetMapping("/setting")
 	public String getSetting(Model m) {
+
+		String loginId = (String) session.getAttribute("loginId");
+		//teacherIdと合致するデータを取得して戻り値がnullならfalse,nullじゃなければtrue
+		boolean isTeacherExist = interviewService.existsByLoginIdAndTeacherId(loginId); 
+		
+		
+		if(isTeacherExist) {
+			//teacherIdと紐づくdataがinterview_schedulesテーブルにあった
+			System.out.println("interviewDBにdataあり");
+			List<Integer> meetingIdList = interviewService.getDistinctMeetingId(loginId);
+			System.out.println(meetingIdList);
+		}
+		
+		
 		Meeting meet = new Meeting();
 		//デフォルト値設定
 		meet.setStartTime("09:00");
@@ -46,8 +60,8 @@ public class SettingController {
 			Model m) {
 
 		//面談スケジュールをDBに格納
-		List<String> meetDate = service.getMeetingDate(meet); //面談日をリストに格納
-		List<String> schedule = service.getMeetingSchedule(meet);//面談時間枠をリストに格納
+		List<String> meetDate = meetingService.getMeetingDate(meet); //面談日をリストに格納
+		List<String> schedule = meetingService.getMeetingSchedule(meet);//面談時間枠をリストに格納
 
 		for (String date : meetDate) {
 			InterviewSchedule interview = new InterviewSchedule();
@@ -57,7 +71,7 @@ public class SettingController {
 				interview.setStartTime(LocalTime.parse(meetTime.split("～")[0]));
 				interview.setEndTime(LocalTime.parse(meetTime.split("～")[1]));
 				interview.setDurationMinutes(Integer.parseInt(meet.getTimePerMeeting()));
-				mapper.insert(interview);
+				interviewService.add(interview);
 			}
 		}
 
