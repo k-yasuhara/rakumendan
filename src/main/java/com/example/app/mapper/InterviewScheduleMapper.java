@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.example.app.domain.InterviewSchedule;
+import com.example.app.dto.StartTimeEndTime;
 
 @Mapper
 public interface InterviewScheduleMapper {
@@ -17,4 +18,6 @@ public interface InterviewScheduleMapper {
 	
 	//teacherIdに紐づくmeeting_idのデータを取得
 	List<Integer> distinctMeetingId(String teacherId);
+	
+	StartTimeEndTime getStartAndEndTime(Integer meetingId);
 }

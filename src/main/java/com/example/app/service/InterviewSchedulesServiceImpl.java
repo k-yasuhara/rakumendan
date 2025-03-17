@@ -1,8 +1,6 @@
 package com.example.app.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -45,15 +43,19 @@ public class InterviewSchedulesServiceImpl implements InterviewSchedulesService 
 	}
 
 	@Override
-	public Map<Integer, String> getMeetingStatus(List<Integer> meetingIdList) {
-		Map<Integer, String> meetingStatus = new HashMap<>();
-		List<MeetingsDomain> list = meetingsMapper.
-
+	public MeetingsDomain getMeetingStatus(List<Integer> meetingIdList) {
 		for (Integer meetingId : meetingIdList) {
-			meetingStatus.put(meetingId, )
+			String status = meetingsMapper.findByMeetingId(meetingId).getStatus();
+			if (status != null) {
+				return meetingsMapper.findByMeetingId(meetingId);
+			}
 		}
-
 		return null;
+	}
+
+	@Override
+	public MeetingsDomain findByMeetingId(Integer meetingId) {
+		return meetingsMapper.findByMeetingId(meetingId);
 	}
 
 }

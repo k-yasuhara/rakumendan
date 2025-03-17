@@ -13,7 +13,7 @@
 		(#{teacherId},
 		#{date}, #{startTime}, #{endTime}, #{durationMinutes})
 	</insert>
-	<select id="selectAll"
+	<select id="findByTeacherId"
 		resultType="com.example.app.domain.InterviewSchedule">
 		select * from interview_schedules where teacher_id = #{id};
 	</select>
@@ -23,5 +23,10 @@
 		meeting_id
 		from interview_schedules
 		where teacher_id = #{id};
+	</select>
+	<select id="getStartAndEndTime"
+		resultType="com.example.app.dto.StartTimeEndTime">
+		select min(start_time) ,max(end_time) from
+		interview_schedules where meeting_id = #{id};
 	</select>
 </mapper>

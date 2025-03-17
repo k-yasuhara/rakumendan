@@ -2,7 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.app.mapper.MeetingsMapper">
-	<select id="selectById" resultType="com.example.app.domain.MeetingsDomain">
-		select * from meetings where teacher_id = #{id};
+	<select id="findByMeetingId" resultType="com.example.app.domain.MeetingsDomain">
+		<![CDATA[
+		select * from meetings where meeting_id = #{id} and `status` <> 'closed';
+		]]>
 	</select>
 </mapper>

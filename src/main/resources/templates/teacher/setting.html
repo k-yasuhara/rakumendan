@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width" />
-	<script type="module" th:src="@{/js/input-dates.js}"></script>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
 	<style>
 		input {
 			width: 80vw;
@@ -18,104 +18,195 @@
 			background-color: lightgray;
 		}
 	</style>
+	<tittle>個人面談 スケジュール設定画面</tittle>
 </head>
 
 <body>
-	<h1>個人面談 スケジュール設定画面</h1>
-	<p class="error">[[${errorMsg}]]</p>
+	<main>
+		<h1>個人面談 スケジュール設定画面</h1>
+		<p class="error" id="errorMsg"></p>
 
-	<h2>面談日 設定</h2>
-	<form action="" method="post" th:object="${meet}">
-		<input-dates id="inputdates"></input-dates><br />
-		<input type="text" id="chk" th:field="*{parentMeetingDate}" style="width: 350px" readonly /><br />
-		<script type="module">
-			inputdates.onchange = () => {
-				//   console.log(inputdates.value);
-				chk.value = inputdates.value;
-			};
-		</script>
-		<h2>面談時間 設定</h2>
-		<p>
-			開始時間：
-			<input type="time" name="startTime" style="width: auto" th:field="*{startTime}" />
-		</p>
-		<p>
-			終了時間：
-			<input type="time" name="endTime" style="width: auto" th:field="*{endTime}" />
-		</p>
-		<p>
-			面談時間 (0～60分)：
-			<input type="number" name="timePerMeeting" style="width: 50px" th:field="*{timePerMeeting}" placeholder="0"
-				min="0" max="60" step="5" />分
-		</p>
-
-		<input type="submit" value="設定" style="width: auto" />
-		<br><br>
-
-
-		<!-- 面談スケジュール-->
-		<div th:if="${meetDate}">
-			<table>
-				<thead>
-					<tr>
-						<th>時間/日にち</th>
-						<th th:each="date: ${meetDate}">[[${date}]]</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr th:each="schedule , status: ${schedule}" style="height: 50px;">
-						<th>[[${status.count}]]. [[${schedule}]]</th>
-						<td th:each="date: ${meetDate}">
-							<button type="button" th:data-date="${date}" th:data-schedule="${schedule}"
-								onclick="toggleAvailability(this)">面談不可</button><!-- 隠しフィールドに面談不可の情報を格納 -->
-							<input type="hidden" name="unavailableDates" id="unavailableDates" value="" />
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<script>
-				function toggleAvailability(button) {
-					const date = button.getAttribute("data-date");
-					const schedule = button.getAttribute("data-schedule");
-					const cell = button.parentElement;
-					const unavailableDatesInput = document.getElementById("unavailableDates");
-
-					if (cell.classList.contains("unavailable")) {
-						cell.classList.remove("unavailable");
-						button.textContent = "面談不可";
-						// 面談不可状態を解除
-						removeUnavailableDate(date, schedule);
-					} else {
-						cell.classList.add("unavailable");
-						button.textContent = "面談可";
-						// 面談不可状態を追加
-						addUnavailableDate(date, schedule);
-					}
-
-					// 面談不可日程のリストをフォームの隠しフィールドに反映
-					unavailableDatesInput.value = unavailableDates.join(",");
-				}
-
-				let unavailableDates = [];
-
-				function addUnavailableDate(date, schedule) {
-					unavailableDates.push(date + ' ' + schedule);
-				}
-
-				function removeUnavailableDate(date, schedule) {
-					const index = unavailableDates.indexOf(date + ' ' + schedule);
-					if (index !== -1) {
-						unavailableDates.splice(index, 1);
-					}
-				}
+		<h2>面談日 設定</h2>
+		<form action="" method="post" id="scheduleForm" th:object="${meet}">
+			<input-dates id="inputdates"></input-dates><br />
+			<input type="text" id="chk" name="parentMeetingDate" th:field="*{parentMeetingDate}" style="width: 350px"
+				readonly /><br />
+			<script type="module">
+				inputdates.onchange = () => {
+					chk.value = inputdates.value;
+				};
 			</script>
-			<!-- end of 面談スケジュール -->
-			<br>
-			<!-- 保存ボタン -->
-			<input type="submit" value="保存" style="width: auto" />
-		</div>
-	</form>
-	<a href="/logout">ログアウト</a>
+
+			<h2>面談時間 設定</h2>
+			<p>
+				開始時間：
+				<input type="time" id="startTime" name="startTime" th:field="*{startTime}" style="width: auto" />
+			</p>
+			<p>
+				終了時間：
+				<input type="time" id="endTime" name="endTime" th:field="*{endTime}" style="width: auto" />
+			</p>
+			<p>
+				面談時間 (0～60分)：
+				<input type="number" id="timePerMeeting" name="timePerMeeting" th:field="*{timePerMeeting}"
+					style="width: 50px" placeholder="0" min="0" max="60" step="5" />分
+			</p>
+
+			<input type="button" value="スケジュール生成" onclick="showSchedule()" style="width: auto" />
+			<br /><br />
+
+			<!-- 面談スケジュール-->
+			<div id="scheduleSection" style="display: none">
+				<table>
+					<thead id="scheduleDates"></thead>
+					<tbody id="scheduleTableBody"></tbody>
+				</table>
+
+				<br />
+				<!-- 保存ボタン -->
+				<input type="submit" value="保存" style="width: auto" />
+			</div>
+
+			<!-- 面談不可日程を送信するための隠しフィールド -->
+			<input type="hidden" id="unavailableDates" name="unavailableDates" />
+		</form>
+		<a href="/teacher/mypage">マイページに戻る</a>
+
+		<a href="/logout">ログアウト</a>
+	</main>
+
+	<script>
+		function showSchedule() {
+			// 入力値取得
+			const chk = document.getElementById("chk").value;
+			const startTime = document.getElementById("startTime").value;
+			const endTime = document.getElementById("endTime").value;
+			const timePerMeeting = parseInt(
+				document.getElementById("timePerMeeting").value,
+				10
+			);
+
+			const errorMsg = document.getElementById("errorMsg");
+			errorMsg.style.display = "none";
+
+			// バリデーション
+			if (!chk || !startTime || !endTime || !timePerMeeting) {
+				errorMsg.textContent = "全ての項目を入力してください";
+				errorMsg.style.display = "block";
+				return;
+			} else if (startTime >= endTime) {
+				errorMsg.textContent = "開始時間が終了時間よりも遅いです";
+				errorMsg.style.display = "block";
+				return;
+			}
+
+			const chkArray = chk.split(",");
+
+			// テーブルヘッダの日付部分を生成
+			const scheduleDates = document.getElementById("scheduleDates");
+			scheduleDates.innerHTML = ""; // 初期化
+			const row = document.createElement("tr");
+			const th = document.createElement("th");
+			th.textContent = "時間/日にち";
+			row.appendChild(th);
+			chkArray.forEach((date) => {
+				const th = document.createElement("th");
+				th.textContent = date;
+				row.appendChild(th);
+			});
+			scheduleDates.appendChild(row);
+
+			// テーブルボディの生成
+			const scheduleTableBody = document.getElementById("scheduleTableBody");
+			scheduleTableBody.innerHTML = ""; // 初期化
+
+			// 時間のフォーマットを整える関数
+			const padZero = (num) => (num < 10 ? "0" + num : num);
+
+			let schedule = [];
+			let currentTime = startTime;
+
+			// 開始時間から終了時間まで、指定した面談時間ごとに分割してスケジュールを作成
+			while (currentTime < endTime) {
+				let hour = parseInt(currentTime.split(":")[0], 10);
+				let minute = parseInt(currentTime.split(":")[1], 10);
+
+				minute += timePerMeeting;
+				if (minute >= 60) {
+					minute -= 60;
+					hour++;
+				}
+
+				const nextTime = `${padZero(hour)}:${padZero(minute)}`;
+
+				schedule.push(`${currentTime}～${nextTime}`);
+				currentTime = nextTime;
+			}
+
+			schedule.forEach((timeSlot) => {
+				const row = document.createElement("tr");
+				const timeCell = document.createElement("td");
+				timeCell.textContent = timeSlot;
+				row.appendChild(timeCell);
+
+				chkArray.forEach((date) => {
+					const td = document.createElement("td");
+					const button = document.createElement("button");
+					button.type = "button";
+					button.setAttribute("data-date", date);
+					button.setAttribute("data-schedule", timeSlot);
+					button.textContent = "面談不可";
+					button.onclick = toggleAvailability;
+
+					td.appendChild(button); // ボタンを td に追加
+					row.appendChild(td);
+				});
+
+				scheduleTableBody.appendChild(row);
+			});
+
+			// スケジュールセクションを表示
+			document.getElementById("scheduleSection").style.display = "block";
+		}
+
+		function toggleAvailability(event) {
+			const button = event.target;
+			const date = button.getAttribute("data-date");
+			const schedule = button.getAttribute("data-schedule");
+			const cell = button.parentElement;
+			const unavailableDatesInput =
+				document.getElementById("unavailableDates");
+
+			if (cell.classList.contains("unavailable")) {
+				cell.classList.remove("unavailable");
+				button.textContent = "面談不可";
+				removeUnavailableDate(date, schedule);
+			} else {
+				cell.classList.add("unavailable");
+				button.textContent = "面談可";
+				addUnavailableDate(date, schedule);
+			}
+
+			// 面談不可日程のリストをフォームの隠しフィールドに反映
+			unavailableDatesInput.value = unavailableDates.join(",");
+		}
+
+		let unavailableDates = [];
+
+		function addUnavailableDate(date, schedule) {
+			unavailableDates.push(date + " " + schedule);
+		}
+
+		function removeUnavailableDate(date, schedule) {
+			const index = unavailableDates.indexOf(date + " " + schedule);
+			if (index !== -1) {
+				unavailableDates.splice(index, 1);
+			}
+		}
+	</script>
+
+	<script type="module" th:src="@{/js/input-dates.js}"></script>
+	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 
 </html>

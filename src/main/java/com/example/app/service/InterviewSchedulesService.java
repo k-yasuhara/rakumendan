@@ -1,9 +1,9 @@
 package com.example.app.service;
 
 import java.util.List;
-import java.util.Map;
 
 import com.example.app.domain.InterviewSchedule;
+import com.example.app.domain.MeetingsDomain;
 
 public interface InterviewSchedulesService {
 	
@@ -15,5 +15,7 @@ public interface InterviewSchedulesService {
 	
 	List<Integer>getDistinctMeetingId(String teacherId);
 	
-	Map<Integer, String>getMeetingStatus(List<Integer> meetingList);
+	MeetingsDomain getMeetingStatus(List<Integer> meetingList);
+	
+	MeetingsDomain findByMeetingId(Integer meetingId);
 }
