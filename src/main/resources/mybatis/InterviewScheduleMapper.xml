@@ -24,9 +24,12 @@
 		from interview_schedules
 		where teacher_id = #{id};
 	</select>
-	<select id="getStartAndEndTime"
-		resultType="com.example.app.dto.StartTimeEndTime">
-		select min(start_time) ,max(end_time) from
-		interview_schedules where meeting_id = #{id};
+	
+	<select id="getMeetingDate" resultType="java.time.LocalDate">
+		select distinct date from interview_schedules where meeting_id = #{id} order by date;
+	</select>
+	
+	<select id="findByMeetingId" resultType="com.example.app.domain.InterviewSchedule">
+		select * from interview_schedules where meeting_id = #{id};
 	</select>
 </mapper>

@@ -22,6 +22,31 @@
 			</a>
 		</div>
 	</div>
+	<br>
+	<!-- 面談スケジュール-->
+	<div id="scheduleSection" class="row">
+		<div class="col-4">
+			<table class="table table-bordered">
+				<thead id="scheduleDates">
+					<tr>
+						<th>時間/日付</th>
+						<th th:each="entry :${schedule}" th:text="${entry.key}"></th>
+					</tr>
+				</thead>
+				<tbody id="scheduleTableBody" th:each="entry :${schedule}">
+					<tr th:each="e: ${entry}">
+						<td th:text="${e}"></td>
+						<!--						<td th:text="${e.startTime}+'～'+${e.endTime}"></td>-->
+						<!--						<td th:text="${entry.value.startTime}+'～'+${entry.value.endTime}"></td>-->
+						<!--						<td th:if="${schedule.status.equals('open')}">〇面談可能</td>-->
+						<!--						<td th:if="${schedule.status.equals('closed')}">×面談不可</td>-->
+						<!--						<td th:if="${schedule.status.equals('confirmed')}">面談確定済み</td>-->
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
 	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 

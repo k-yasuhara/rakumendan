@@ -1,5 +1,6 @@
 package com.example.app.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -56,6 +57,16 @@ public class InterviewSchedulesServiceImpl implements InterviewSchedulesService 
 	@Override
 	public MeetingsDomain findByMeetingId(Integer meetingId) {
 		return meetingsMapper.findByMeetingId(meetingId);
+	}
+
+	@Override
+	public List<LocalDate> getMeetingDate(Integer meetingId) {
+		return interviewMapper.getMeetingDate(meetingId);
+	}
+
+	@Override
+	public List<InterviewSchedule> getInterviewSchedule(Integer meetingId) {
+		return interviewMapper.findByMeetingId(meetingId);
 	}
 
 }

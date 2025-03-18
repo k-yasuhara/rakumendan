@@ -2,7 +2,10 @@ package com.example.app.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,14 +50,15 @@ public class SettingController {
 			//teacherIdと紐づくdataがinterview_schedulesテーブルにあった
 			System.out.println("interviewDBにdataあり");
 			List<Integer> meetingIdList = interviewService.getDistinctMeetingId(loginId);
-//			System.out.println(meetingIdList);
+			//			System.out.println(meetingIdList);
 			MeetingsDomain meetindStatusById = interviewService.getMeetingStatus(meetingIdList);
-//			System.out.println(meetindStatusById);
+			//			System.out.println(meetindStatusById);
 
 			if (meetindStatusById.getStatus().equals("active")) {
 				ra.addFlashAttribute("meetingStatus", "active");
 				ra.addFlashAttribute("checkMsg", "登録済みの面談日程があります。どうしますか");
-				ra.addFlashAttribute("meet", meetindStatusById);
+				session.setAttribute("meet", meetindStatusById);
+
 				//mpdalのbutton「削除する」→/teacher/setting/closed→getmapping(/setting/closed)からDBをupdateする
 				//modalのbutton「残す」→/mypageに戻る
 				return "redirect:/teacher/check";
@@ -115,11 +119,29 @@ public class SettingController {
 	@GetMapping("/check")
 	public String getCheck(Model m,
 			@ModelAttribute("checkMsg") String checkMsg,
-			@ModelAttribute("meetingStatus") String meetingStatus,
-			@ModelAttribute("meet") MeetingsDomain meet) {
+			@ModelAttribute("meetingStatus") String meetingStatus) {
+
+		Integer meetingId = ((MeetingsDomain) session.getAttribute("meet")).getMeetingId();
+		List<InterviewSchedule> scheduleLists = interviewService.getInterviewSchedule(meetingId);
+		List<LocalDate> dateList = interviewService.getMeetingDate(meetingId);
+		Map<LocalDate, List<InterviewSchedule>> scheduleList = new LinkedHashMap<>();
+
+		for (LocalDate d : dateList) {
+			List<InterviewSchedule> list = new ArrayList<InterviewSchedule>();
+			for (InterviewSchedule s : scheduleLists) {
+				if (s.getDate().equals(d)) {
+					list.add(s);
+				}
+				scheduleList.put(d, list);
+			}
+		}
+
+		//変数格納
 		m.addAttribute("checkMsg", checkMsg);
 		m.addAttribute("status", meetingStatus);
-//		System.out.println(interviewService.findByMeetingId(meet.getMeetingId()));
+		m.addAttribute("schedule", scheduleList);
+		System.out.println(scheduleList);
+
 		return "teacher/check";
 	}
 
