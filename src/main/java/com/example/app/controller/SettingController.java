@@ -71,7 +71,6 @@ public class SettingController {
 
 			} else if (meetindStatusById.getStatus().equals("accepting")) {
 				System.out.println(meetindStatusById.getStatus());
-				System.out.println("予約募集中の面談日程があります。どうしますか");
 				ra.addAttribute("meetingStatus", "accepting");
 				ra.addAttribute("checkMsg", "予約募集中の面談日程があります。どうしますか");
 				session.setAttribute("meet", meetindStatusById);
@@ -115,7 +114,10 @@ public class SettingController {
 		if (unavailableDates != null && !unavailableDates.isEmpty()) {
 			String[] dates = unavailableDates.split(",");
 			for (String date : dates) {
-
+				InterviewSchedule interview = new InterviewSchedule();
+				interview.setDate(LocalDate.parse(date.substring(0, 10)));
+				interview.setStartTime(LocalTime.parse(date.substring(14, 19)));
+				
 				// ここで、unavailableDatesを利用した処理を行u
 				// 例えば、データベースに保存する、あるいはリストに追加するなど
 				System.out.println("面談不可日: " + date);
