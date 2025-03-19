@@ -8,7 +8,9 @@ import com.example.app.domain.MeetingsDomain;
 
 public interface InterviewSchedulesService {
 
-	void add(InterviewSchedule i);
+	void addInterviewSchedules(InterviewSchedule i);
+	
+	Integer addMeetings(String teacherId);
 
 	List<InterviewSchedule> findByLoginIdAndTeacherId(String teacherId);
 
@@ -23,4 +25,8 @@ public interface InterviewSchedulesService {
 	List<LocalDate> getMeetingDate(Integer meetingId);
 	
 	List<InterviewSchedule> getInterviewSchedule(Integer meetingId);
+	
+	List<String> getDistinctStartAndEndTime (Integer MeetingId);
+	
+	void closeStatus (Integer MeetingId);
 }

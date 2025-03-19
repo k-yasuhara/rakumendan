@@ -17,5 +17,5 @@ public class InterviewSchedule {
 	private String status; // "open：面談可", "closed：面談不可", "confirmed：確定済み"
 	private String reserved_student_id;
 	private LocalDateTime created;
-	private String meetingId; //いつ作成した面談枠なのか、面談枠のグループを明記
+	private Integer meetingId; //いつ作成した面談枠なのか、面談枠のグループを明記
 }

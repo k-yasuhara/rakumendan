@@ -18,7 +18,19 @@
 		</div>
 		<div class="col-auto">
 			<a th:href="@{/teacher/mypage}">
-				<button type="button" class="btn btn-secondary">残す(マイページに戻る)</button>
+				<button type="button" class="btn btn-secondary">そのまま残す(マイページに戻る)</button>
+			</a>
+		</div>
+	</div>
+	<div th:if="${status.equals('accepting')}" class="row">
+		<div class="col-auto">
+			<a th:href="@{/teacher/setting/closed}">
+				<button type="button" class="btn btn-primary">予約の募集を止める</button>
+			</a>
+		</div>
+		<div class="col-auto">
+			<a th:href="@{/teacher/mypage}">
+				<button type="button" class="btn btn-secondary">そのまま残す(マイページに戻る)</button>
 			</a>
 		</div>
 	</div>
@@ -33,14 +45,14 @@
 						<th th:each="entry :${schedule}" th:text="${entry.key}"></th>
 					</tr>
 				</thead>
-				<tbody id="scheduleTableBody" th:each="entry :${schedule}">
-					<tr th:each="e: ${entry}">
-						<td th:text="${e}"></td>
-						<!--						<td th:text="${e.startTime}+'～'+${e.endTime}"></td>-->
-						<!--						<td th:text="${entry.value.startTime}+'～'+${entry.value.endTime}"></td>-->
-						<!--						<td th:if="${schedule.status.equals('open')}">〇面談可能</td>-->
-						<!--						<td th:if="${schedule.status.equals('closed')}">×面談不可</td>-->
-						<!--						<td th:if="${schedule.status.equals('confirmed')}">面談確定済み</td>-->
+				<tbody id="scheduleTableBody">
+					<tr th:each="time: ${timeList}">
+						<td th:text="${time}"></td>
+						<td th:each="entry :${schedule}">
+							<p th:each="meeting : ${entry.value}" 
+							   th:if="${time == meeting.startTime.toString() + '～' + meeting.endTime.toString()}"
+							   th:text="${meeting.status}"></p>
+						</td>
 					</tr>
 				</tbody>
 			</table>

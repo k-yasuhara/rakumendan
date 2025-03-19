@@ -45,18 +45,24 @@ public class SettingController {
 		String loginId = (String) session.getAttribute("loginId");
 		//teacherIdと合致するデータを取得して戻り値がnullならfalse,nullじゃなければtrue
 		boolean isTeacherExist = interviewService.existsByLoginIdAndTeacherId(loginId);
-
+		//		System.out.println(isTeacherExist);
 		if (isTeacherExist) {
 			//teacherIdと紐づくdataがinterview_schedulesテーブルにあった
 			System.out.println("interviewDBにdataあり");
 			List<Integer> meetingIdList = interviewService.getDistinctMeetingId(loginId);
-			//			System.out.println(meetingIdList);
+			System.out.println(meetingIdList);
 			MeetingsDomain meetindStatusById = interviewService.getMeetingStatus(meetingIdList);
-			//			System.out.println(meetindStatusById);
+			System.out.println(meetindStatusById);
+
+			//Meetingsテーブルにはdataがない、またはclosedのみだった
+			if (meetindStatusById == null) {
+				return "teacher/setting";
+			}
 
 			if (meetindStatusById.getStatus().equals("active")) {
-				ra.addFlashAttribute("meetingStatus", "active");
-				ra.addFlashAttribute("checkMsg", "登録済みの面談日程があります。どうしますか");
+				System.out.println(meetindStatusById.getStatus());
+				ra.addAttribute("meetingStatus", "active");
+				ra.addAttribute("checkMsg", "登録済みの面談日程があります。どうしますか");
 				session.setAttribute("meet", meetindStatusById);
 
 				//mpdalのbutton「削除する」→/teacher/setting/closed→getmapping(/setting/closed)からDBをupdateする
@@ -64,18 +70,18 @@ public class SettingController {
 				return "redirect:/teacher/check";
 
 			} else if (meetindStatusById.getStatus().equals("accepting")) {
+				System.out.println(meetindStatusById.getStatus());
 				System.out.println("予約募集中の面談日程があります。どうしますか");
-				m.addAttribute("meetingStatus", "accepting");
-				m.addAttribute("checkMsg", "予約募集中の面談日程があります。どうしますか");
+				ra.addAttribute("meetingStatus", "accepting");
+				ra.addAttribute("checkMsg", "予約募集中の面談日程があります。どうしますか");
+				session.setAttribute("meet", meetindStatusById);
 				//mpdalのbutton「予約の募集を止める」→/teacher/setting/closed→getmapping(/setting/closed)からDBをupdateする
 				//modalのbutton「止めない」→/mypageに戻る
-				return "teacher/setting";
-			} else {
-				//statusがclosdである　mapperですでにclosedを除外済み
+				return "redirect:/teacher/check";
 			}
-		} else {
-			//teacherIdと紐づくdataがinterview_schedulesテーブルがなかった
+
 		}
+		//teacherIdと紐づくdataがinterview_schedulesテーブルがなかった
 		return "teacher/setting";
 	}
 
@@ -88,7 +94,10 @@ public class SettingController {
 		//面談スケジュールをDBに格納
 		List<String> meetDate = meetingSettingService.getMeetingDate(meet); //面談日をリストに格納
 		List<String> schedule = meetingSettingService.getMeetingSchedule(meet);//面談時間枠をリストに格納
-
+		String teacherId = (String) session.getAttribute("loginId");
+		Integer meetingId = interviewService.addMeetings(teacherId);
+		System.out.println("meetingId:" + meetingId);
+		
 		for (String date : meetDate) {
 			InterviewSchedule interview = new InterviewSchedule();
 			for (String meetTime : schedule) {
@@ -97,7 +106,9 @@ public class SettingController {
 				interview.setStartTime(LocalTime.parse(meetTime.split("～")[0]));
 				interview.setEndTime(LocalTime.parse(meetTime.split("～")[1]));
 				interview.setDurationMinutes(Integer.parseInt(meet.getTimePerMeeting()));
-				interviewService.add(interview);
+				interview.setMeetingId(meetingId);
+				
+				interviewService.addInterviewSchedules(interview);
 			}
 		}
 
@@ -105,7 +116,7 @@ public class SettingController {
 			String[] dates = unavailableDates.split(",");
 			for (String date : dates) {
 
-				// ここで、unavailableDatesを利用した処理を行います
+				// ここで、unavailableDatesを利用した処理を行u
 				// 例えば、データベースに保存する、あるいはリストに追加するなど
 				System.out.println("面談不可日: " + date);
 
@@ -118,13 +129,14 @@ public class SettingController {
 
 	@GetMapping("/check")
 	public String getCheck(Model m,
-			@ModelAttribute("checkMsg") String checkMsg,
-			@ModelAttribute("meetingStatus") String meetingStatus) {
+			@RequestParam("checkMsg") String checkMsg,
+			@RequestParam("meetingStatus") String meetingStatus) {
 
 		Integer meetingId = ((MeetingsDomain) session.getAttribute("meet")).getMeetingId();
 		List<InterviewSchedule> scheduleLists = interviewService.getInterviewSchedule(meetingId);
 		List<LocalDate> dateList = interviewService.getMeetingDate(meetingId);
 		Map<LocalDate, List<InterviewSchedule>> scheduleList = new LinkedHashMap<>();
+		List<String> timeList = interviewService.getDistinctStartAndEndTime(meetingId);
 
 		for (LocalDate d : dateList) {
 			List<InterviewSchedule> list = new ArrayList<InterviewSchedule>();
@@ -140,13 +152,20 @@ public class SettingController {
 		m.addAttribute("checkMsg", checkMsg);
 		m.addAttribute("status", meetingStatus);
 		m.addAttribute("schedule", scheduleList);
+		m.addAttribute("timeList", timeList);
 		System.out.println(scheduleList);
+		System.out.println(timeList);
 
 		return "teacher/check";
 	}
 
 	@GetMapping("/setting/closed")
-	public String getMeetingDatabaseClosed() {
+	public String getMeetingDatabaseClosed(RedirectAttributes ra) {
+		Integer meetingId = ((MeetingsDomain) session.getAttribute("meet")).getMeetingId();
+		System.out.println(meetingId);
+		interviewService.closeStatus(meetingId);
+		session.removeAttribute("meet");
+		ra.addFlashAttribute("message", "面談日程を削除しました");
 		return "redirect:/teacher/mypage";
 	}
 

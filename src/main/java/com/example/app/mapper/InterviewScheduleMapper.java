@@ -27,5 +27,11 @@ public interface InterviewScheduleMapper {
 	
 	//meetingIdに紐づく一意のdateを取得
 	List<LocalDate> getMeetingDate(Integer MeetingId);
+	
+	//meetingIdに紐づく一意の開始時間と終了時間を取得
+	List<String> distinctStartAndEndTime (Integer MeetingId);
+	
+	//meetingIdに紐づくデータのstatusをclosedにする
+	void updateStatusToClosed(Integer MeetingId);
 
 }

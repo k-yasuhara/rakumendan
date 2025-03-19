@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.app.domain.InterviewSchedule;
 import com.example.app.domain.MeetingsDomain;
@@ -18,10 +19,16 @@ public class InterviewSchedulesServiceImpl implements InterviewSchedulesService 
 
 	private final InterviewScheduleMapper interviewMapper;
 	private final MeetingsMapper meetingsMapper;
+	
+	@Override
+	public void addInterviewSchedules(InterviewSchedule i) {
+		interviewMapper.insert(i);
+	}
 
 	@Override
-	public void add(InterviewSchedule i) {
-		interviewMapper.insert(i);
+	public Integer addMeetings(String teacherId) {
+		meetingsMapper.insertByTeacherId(teacherId);
+		return meetingsMapper.getLastInsertId();
 	}
 
 	@Override
@@ -31,8 +38,8 @@ public class InterviewSchedulesServiceImpl implements InterviewSchedulesService 
 
 	@Override
 	public boolean existsByLoginIdAndTeacherId(String teacherId) {
-		//teacherIdと合致するデータを取得して戻り値がnullならfalse,nullじゃなければtrue
-		if (findByLoginIdAndTeacherId(teacherId) != null) {
+		//teacherIdと合致するデータを取得して戻り値が空ならfalse,空じゃなければtrue
+		if (!findByLoginIdAndTeacherId(teacherId).isEmpty()) {
 			return true;
 		}
 		return false;
@@ -46,10 +53,12 @@ public class InterviewSchedulesServiceImpl implements InterviewSchedulesService 
 	@Override
 	public MeetingsDomain getMeetingStatus(List<Integer> meetingIdList) {
 		for (Integer meetingId : meetingIdList) {
-			String status = meetingsMapper.findByMeetingId(meetingId).getStatus();
-			if (status != null) {
-				return meetingsMapper.findByMeetingId(meetingId);
+			MeetingsDomain meet = meetingsMapper.findByMeetingId(meetingId);
+			//meetingIdに対してnullだった場合
+			if (meet == null) {
+				continue;
 			}
+			return meetingsMapper.findByMeetingId(meetingId);
 		}
 		return null;
 	}
@@ -68,5 +77,18 @@ public class InterviewSchedulesServiceImpl implements InterviewSchedulesService 
 	public List<InterviewSchedule> getInterviewSchedule(Integer meetingId) {
 		return interviewMapper.findByMeetingId(meetingId);
 	}
+
+	@Override
+	public List<String> getDistinctStartAndEndTime(Integer MeetingId) {
+		return interviewMapper.distinctStartAndEndTime(MeetingId);
+	}
+	
+	@Transactional
+	@Override
+	public void closeStatus(Integer MeetingId) {
+		interviewMapper.updateStatusToClosed(MeetingId);
+		meetingsMapper.updateStatusToClosed(MeetingId);
+	}
+
 
 }

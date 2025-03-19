@@ -8,10 +8,10 @@
 		INSERT INTO
 		interview_schedules
 		(teacher_id,
-		date,start_time,end_time,duration_minutes)
+		date,start_time,end_time,duration_minutes,meeting_id)
 		VALUES
 		(#{teacherId},
-		#{date}, #{startTime}, #{endTime}, #{durationMinutes})
+		#{date}, #{startTime}, #{endTime}, #{durationMinutes},#{meetingId})
 	</insert>
 	<select id="findByTeacherId"
 		resultType="com.example.app.domain.InterviewSchedule">
@@ -24,12 +24,26 @@
 		from interview_schedules
 		where teacher_id = #{id};
 	</select>
-	
+
 	<select id="getMeetingDate" resultType="java.time.LocalDate">
-		select distinct date from interview_schedules where meeting_id = #{id} order by date;
+		select distinct date from
+		interview_schedules where meeting_id = #{id} order by date;
 	</select>
-	
-	<select id="findByMeetingId" resultType="com.example.app.domain.InterviewSchedule">
+
+	<select id="findByMeetingId"
+		resultType="com.example.app.domain.InterviewSchedule">
 		select * from interview_schedules where meeting_id = #{id};
 	</select>
+
+	<select id="distinctStartAndEndTime" resultType="string">
+		select distinct
+		concat(date_format(start_time
+		,'%H:%i'),"～",date_format(end_time,'%H:%i'))
+		from interview_schedules where
+		meeting_id = #{id};
+	</select>
+
+	<update id="updateStatusToClosed" parameterType="int">
+		update interview_schedules set status = "closed" where meeting_id = #{id};
+	</update>
 </mapper>
