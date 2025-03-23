@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +24,6 @@ import com.example.app.dto.Meeting;
 import com.example.app.service.InterviewSchedulesService;
 import com.example.app.service.MeetingSettingService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -117,11 +118,12 @@ public class SettingController {
 				InterviewSchedule interview = new InterviewSchedule();
 				interview.setDate(LocalDate.parse(date.substring(0, 10)));
 				interview.setStartTime(LocalTime.parse(date.substring(14, 19)));
+				interview.setMeetingId(meetingId);
+//				System.out.println(interview.getDate());
+//				System.out.println(interview.getStartTime());
+//				System.out.println("面談不可日: " + date);
+				// interviewテーブルからmeetingId,date,start_timeに合致するものをupdate
 				
-				// ここで、unavailableDatesを利用した処理を行u
-				// 例えば、データベースに保存する、あるいはリストに追加するなど
-				System.out.println("面談不可日: " + date);
-
 				//リダイレクトする
 			}
 		}
